@@ -1,0 +1,181 @@
+<div class="contact-list-container">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <h1 class="header-title">Contacts</h1>
+      @if (contactCount() > 0) {
+        <div class="header-status">
+          <span class="contact-count">
+            @if (searchQuery()) {
+              {{ filteredContactCount() }} of {{ contactCount() }} contact{{ contactCount() > 1 ? 's' : '' }}
+            } @else {
+              {{ contactCount() }} contact{{ contactCount() > 1 ? 's' : '' }}
+            }
+          </span>
+        </div>
+      }
+    </div>
+  </header>
+
+  <!-- Search Bar -->
+  @if (hasContacts()) {
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          class="search-input"
+          placeholder="Search contacts by name, email, or phone..."
+          [value]="searchQuery()"
+          (input)="onSearchChange($any($event.target).value)"
+        >
+        @if (searchQuery()) {
+          <button class="search-clear" (click)="clearSearch()" title="Clear search">
+            ✕
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Action Bar -->
+  <div class="action-bar">
+    <button class="btn btn-primary" (click)="onNewContact()">
+      <span class="btn-icon">➕</span>
+      New Contact
+    </button>
+    <button 
+      class="btn btn-secondary" 
+      (click)="onAddRandomContacts()" 
+      [disabled]="!isOnline() || isAddingRandom()"
+    >
+      <span class="btn-icon">🎲</span>
+      @if (isAddingRandom()) {
+        Adding...
+      } @else {
+        Add Random
+      }
+    </button>
+  </div>
+
+  <!-- Error Display -->
+  @if (error()) {
+    <div class="error-banner">
+      <span class="error-message">{{ error() }}</span>
+      <button class="error-close" (click)="clearError()">✕</button>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <span class="loading-text">Loading contacts...</span>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading() && !hasContacts()) {
+    <div class="empty-state">
+      <div class="empty-icon">👥</div>
+      <h2 class="empty-title">No Contacts Yet</h2>
+      <p class="empty-message">
+        Get started by creating your first contact or adding some random sample contacts.
+      </p>
+      <div class="empty-actions">
+        <button class="btn btn-primary" (click)="onNewContact()">
+          Create First Contact
+        </button>
+        @if (isOnline()) {
+          <button class="btn btn-outline" (click)="onAddRandomContacts()">
+            Add Sample Contacts
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- No Search Results -->
+  @if (!loading() && hasContacts() && searchQuery() && !hasFilteredContacts()) {
+    <div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <h2 class="empty-title">No Results Found</h2>
+      <p class="empty-message">
+        No contacts match your search for "<strong>{{ searchQuery() }}</strong>".
+        <br>Try searching with a different term.
+      </p>
+      <div class="empty-actions">
+        <button class="btn btn-outline" (click)="clearSearch()">
+          Clear Search
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Contact List -->
+  @if (hasFilteredContacts()) {
+    <div class="contact-grid">
+      @for (contact of filteredContacts(); track trackByContactId($index, contact)) {
+        <div 
+          class="contact-card"
+          [class.pending-sync]="contact.pendingSync"
+          (click)="onContactClick(contact)"
+        >
+          <!-- Avatar -->
+          <div class="contact-avatar">
+            @if (getContactImageSrc(contact)) {
+              <img 
+                [src]="getContactImageSrc(contact)" 
+                [alt]="getContactFullName(contact)"
+                class="avatar-image"
+              >
+            } @else {
+              <div class="avatar-placeholder">
+                {{ getContactFullName(contact).charAt(0).toUpperCase() }}
+              </div>
+            }
+            @if (contact.pendingSync) {
+              <div class="sync-indicator" title="Pending sync">⏳</div>
+            }
+          </div>
+
+          <!-- Contact Info -->
+          <div class="contact-info">
+            <h3 class="contact-name">{{ getContactFullName(contact) }}</h3>
+            <div class="contact-details">
+              @if (contact.email) {
+                <div class="contact-detail">
+                  <span class="detail-icon">📧</span>
+                  <span class="detail-text">{{ contact.email }}</span>
+                </div>
+              }
+              @if (contact.phone) {
+                <div class="contact-detail">
+                  <span class="detail-icon">📱</span>
+                  <span class="detail-text">{{ contact.phone }}</span>
+                </div>
+              }
+              @if (contact.location) {
+                <div class="contact-detail">
+                  <span class="detail-icon">📍</span>
+                  <span class="detail-text">{{ getContactAddress(contact) }}</span>
+                </div>
+              }
+              @if (contact.dob && contact.dob.age) {
+                <div class="contact-detail">
+                  <span class="detail-icon">🎂</span>
+                  <span class="detail-text">{{ contact.dob.age }} years old</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Arrow Indicator -->
+          <div class="contact-arrow">
+            <span class="arrow-icon">→</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,403 @@
+<div class="contact-detail-container">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <button class="back-button" (click)="onBack()">
+        <span class="back-icon">←</span>
+      </button>
+      <h1 class="header-title">{{ pageTitle() }}</h1>
+      <div class="header-spacer"></div>
+    </div>
+  </header>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <span class="loading-text">Loading contact...</span>
+    </div>
+  }
+
+  <!-- Error Display -->
+  @if (error()) {
+    <div class="error-banner">
+      <span class="error-message">{{ error() }}</span>
+      <button class="error-close" (click)="clearError()">✕</button>
+    </div>
+  }
+
+  <!-- Action Bar -->
+  @if (!isLoading() && (contact() || isNewContact())) {
+    <div class="action-bar">
+      @if (canEdit()) {
+        <button class="btn btn-primary" (click)="onEdit()">
+          <span class="btn-icon">✏️</span>
+          Edit
+        </button>
+      }
+
+      @if (canDelete()) {
+        <button class="btn btn-danger" (click)="onDelete()" [disabled]="isSaving()">
+          <span class="btn-icon">🗑️</span>
+          @if (isSaving()) {
+            Deleting...
+          } @else {
+            Delete
+          }
+        </button>
+      }
+
+      @if (isEditing()) {
+        <button class="btn btn-outline" (click)="onCancel()">
+          <span class="btn-icon">✕</span>
+          Cancel
+        </button>
+
+        <button 
+          class="btn btn-primary" 
+          (click)="onSave()" 
+          [disabled]="!canSave() || isSaving()"
+        >
+          <span class="btn-icon">💾</span>
+          @if (isSaving()) {
+            Saving...
+          } @else {
+            Save
+          }
+        </button>
+      }
+    </div>
+  }
+
+  <!-- Contact Content -->
+  @if (!isLoading() && (contact() || isNewContact())) {
+    <div class="contact-content">
+      
+      <!-- View Mode -->
+      @if (!isEditing() && contact()) {
+        <div class="contact-view">
+          <!-- Avatar Section -->
+          <div class="avatar-section">
+            @if (contact()!.picture && contact()!.picture.large) {
+              <img 
+                [src]="contact()!.picture.large" 
+                [alt]="getContactFullName(contact()!)"
+                class="avatar-large"
+              >
+            } @else {
+              <div class="avatar-large avatar-placeholder">
+                {{ getContactFullName(contact()!).charAt(0).toUpperCase() }}
+              </div>
+            }
+            @if (contact()!.pendingSync) {
+              <div class="sync-badge">⏳ Pending Sync</div>
+            }
+          </div>
+
+          <!-- Contact Information -->
+          <div class="info-section">
+            <h2 class="contact-name">{{ getContactFullName(contact()!) }}</h2>
+            
+            <div class="info-groups">
+              <!-- Personal Info -->
+              <div class="info-group">
+                <h3 class="info-group-title">Personal Information</h3>
+                <div class="info-items">
+                  <div class="info-item">
+                    <span class="info-label">📧 Email</span>
+                    <span class="info-value">{{ contact()!.email }}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">📱 Phone</span>
+                    <span class="info-value">{{ contact()!.phone }}</span>
+                  </div>
+                  @if (contact()!.cell) {
+                    <div class="info-item">
+                      <span class="info-label">📞 Cell</span>
+                      <span class="info-value">{{ contact()!.cell }}</span>
+                    </div>
+                  }
+                  @if (contact()!.dob && contact()!.dob.age) {
+                    <div class="info-item">
+                      <span class="info-label">🎂 Age</span>
+                      <span class="info-value">{{ contact()!.dob.age }} years old</span>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Address Info -->
+              @if (contact()!.location) {
+                <div class="info-group">
+                  <h3 class="info-group-title">Address</h3>
+                  <div class="info-items">
+                    @if (contact()!.location.street && contact()!.location.street.name) {
+                      <div class="info-item">
+                        <span class="info-label">🏠 Street</span>
+                        <span class="info-value">
+                          @if (contact()!.location.street.number) {
+                            {{ contact()!.location.street.number }} 
+                          }
+                          {{ contact()!.location.street.name }}
+                        </span>
+                      </div>
+                    }
+                    <div class="info-item">
+                      <span class="info-label">🏙️ City</span>
+                      <span class="info-value">{{ contact()!.location.city }}</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">🏛️ State</span>
+                      <span class="info-value">{{ contact()!.location.state }}</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">🌍 Country</span>
+                      <span class="info-value">{{ contact()!.location.country }}</span>
+                    </div>
+                    @if (contact()!.location.postcode) {
+                      <div class="info-item">
+                        <span class="info-label">📮 Postal Code</span>
+                        <span class="info-value">{{ contact()!.location.postcode }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Registration Info -->
+              @if (contact()!.registered && contact()!.registered.date) {
+                <div class="info-group">
+                  <h3 class="info-group-title">Registration</h3>
+                  <div class="info-items">
+                    <div class="info-item">
+                      <span class="info-label">📅 Date</span>
+                      <span class="info-value">{{ contact()!.registered.date | date:'medium' }}</span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Edit Mode -->
+      @if (isEditing()) {
+        <form [formGroup]="contactForm" class="contact-form" (ngSubmit)="onSave()">
+          
+          <!-- Personal Information -->
+          <div class="form-section">
+            <h3 class="form-section-title">Personal Information</h3>
+            
+
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-label">First Name *</label>
+                <input 
+                  type="text" 
+                  formControlName="firstName" 
+                  class="form-input"
+                  [class.invalid]="isFieldInvalid('firstName')"
+                  placeholder="Enter first name"
+                >
+                @if (getFieldError('firstName')) {
+                  <span class="form-error">{{ getFieldError('firstName') }}</span>
+                }
+              </div>
+
+              <div class="form-field">
+                <label class="form-label">Last Name *</label>
+                <input 
+                  type="text" 
+                  formControlName="lastName" 
+                  class="form-input"
+                  [class.invalid]="isFieldInvalid('lastName')"
+                  placeholder="Enter last name"
+                >
+                @if (getFieldError('lastName')) {
+                  <span class="form-error">{{ getFieldError('lastName') }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-label">Age (Optional)</label>
+                <input 
+                  type="number" 
+                  formControlName="age" 
+                  class="form-input"
+                  [class.invalid]="isFieldInvalid('age')"
+                  placeholder="Enter age"
+                  min="1"
+                  max="120"
+                >
+                @if (getFieldError('age')) {
+                  <span class="form-error">{{ getFieldError('age') }}</span>
+                }
+              </div>
+
+              <div class="form-field">
+                <label class="form-label">Picture URL (Optional)</label>
+                <input 
+                  type="url" 
+                  formControlName="picture" 
+                  class="form-input"
+                  placeholder="Enter image URL"
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Information -->
+          <div class="form-section">
+            <h3 class="form-section-title">Contact Information</h3>
+            
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-label">Email *</label>
+                <input 
+                  type="email" 
+                  formControlName="email" 
+                  class="form-input"
+                  [class.invalid]="isFieldInvalid('email')"
+                  placeholder="Enter email address"
+                >
+                @if (getFieldError('email')) {
+                  <span class="form-error">{{ getFieldError('email') }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-label">Phone *</label>
+                <input 
+                  type="tel" 
+                  formControlName="phone" 
+                  class="form-input"
+                  [class.invalid]="isFieldInvalid('phone')"
+                  placeholder="Enter phone number"
+                >
+                @if (getFieldError('phone')) {
+                  <span class="form-error">{{ getFieldError('phone') }}</span>
+                }
+              </div>
+
+              <div class="form-field">
+                <label class="form-label">Cell (Optional)</label>
+                <input 
+                  type="tel" 
+                  formControlName="cell" 
+                  class="form-input"
+                  [class.invalid]="isFieldInvalid('cell')"
+                  placeholder="Enter cell number"
+                >
+                @if (getFieldError('cell')) {
+                  <span class="form-error">{{ getFieldError('cell') }}</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Address Information -->
+          <div class="form-section">
+            <h3 class="form-section-title">Address Information</h3>
+            
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-label">Street Address</label>
+                <input 
+                  type="text" 
+                  formControlName="street" 
+                  class="form-input"
+                  [class.invalid]="isFieldInvalid('street')"
+                  placeholder="Enter street address"
+                >
+                @if (getFieldError('street')) {
+                  <span class="form-error">{{ getFieldError('street') }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-label">City</label>
+                <input 
+                  type="text" 
+                  formControlName="city" 
+                  class="form-input"
+                  [class.invalid]="isFieldInvalid('city')"
+                  placeholder="Enter city"
+                >
+                @if (getFieldError('city')) {
+                  <span class="form-error">{{ getFieldError('city') }}</span>
+                }
+              </div>
+
+              <div class="form-field">
+                <label class="form-label">State/Province</label>
+                <input 
+                  type="text" 
+                  formControlName="state" 
+                  class="form-input"
+                  [class.invalid]="isFieldInvalid('state')"
+                  placeholder="Enter state/province"
+                >
+                @if (getFieldError('state')) {
+                  <span class="form-error">{{ getFieldError('state') }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-label">Country</label>
+                <input 
+                  type="text" 
+                  formControlName="country" 
+                  class="form-input"
+                  [class.invalid]="isFieldInvalid('country')"
+                  placeholder="Enter country"
+                >
+                @if (getFieldError('country')) {
+                  <span class="form-error">{{ getFieldError('country') }}</span>
+                }
+              </div>
+
+              <div class="form-field">
+                <label class="form-label">Postal Code</label>
+                <input 
+                  type="text" 
+                  formControlName="postcode" 
+                  class="form-input"
+                  [class.invalid]="isFieldInvalid('postcode')"
+                  placeholder="Enter postal code"
+                >
+                @if (getFieldError('postcode')) {
+                  <span class="form-error">{{ getFieldError('postcode') }}</span>
+                }
+              </div>
+            </div>
+          </div>
+
+        </form>
+      }
+    </div>
+  }
+
+  <!-- Not Found State -->
+  @if (!isLoading() && !contact() && !isNewContact()) {
+    <div class="not-found">
+      <div class="not-found-icon">😕</div>
+      <h2 class="not-found-title">Contact Not Found</h2>
+      <p class="not-found-message">
+        The contact you're looking for doesn't exist or may have been deleted.
+      </p>
+      <button class="btn btn-primary" (click)="onBack()">
+        Go Back to Contacts
+      </button>
+    </div>
+  }
+</div>
