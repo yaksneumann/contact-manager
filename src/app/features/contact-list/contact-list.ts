@@ -5,10 +5,11 @@ import { FormsModule } from '@angular/forms';
 import { ContactService } from '../../core/services/contact.service';
 import { Contact } from '../../core/models/contact.model';
 import { ToastService } from '../../shared/toast/toast.service';
+import { HeaderComponent } from '../../shared/components/header/header.component';
 
 @Component({
   selector: 'app-contact-list',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HeaderComponent],
   templateUrl: './contact-list.html',
   styleUrl: './contact-list.css'
 })

@@ -1,31 +1,18 @@
 <div class="contact-list-container">
-  <!-- Header -->
-  <header class="header">
-    <div class="header-content">
-      <h1 class="header-title">Contacts</h1>
-      @if (contactCount() > 0) {
-        <div class="header-status">
-          <span class="contact-count">
-            @if (searchQuery()) {
-              {{ filteredContactCount() }} of {{ contactCount() }} contact{{ contactCount() > 1 ? 's' : '' }}
-            } @else {
-              {{ contactCount() }} contact{{ contactCount() > 1 ? 's' : '' }}
-            }
-          </span>
-        </div>
-      }
-    </div>
-  </header>
+  <!-- Shared Header -->
+  <app-header 
+    title="Contacts">
+  </app-header>
 
-  <!-- Search Bar -->
+  <!-- Search and Action Bar Combined -->
   @if (hasContacts()) {
-    <div class="search-container">
+    <div class="search-action-combined">
       <div class="search-input-wrapper">
         <span class="search-icon">🔍</span>
         <input 
           type="text" 
           class="search-input"
-          placeholder="Search contacts by name, email, or phone..."
+          placeholder="Search contacts"
           [value]="searchQuery()"
           (input)="onSearchChange($any($event.target).value)"
         >
@@ -35,28 +22,93 @@
           </button>
         }
       </div>
+      
+      <!-- Contact Count -->
+      <div class="contact-count-section">
+        @if (searchQuery()) {
+          <span class="contact-count-text">
+            {{ filteredContactCount() }} of {{ contactCount() }} contact{{ contactCount() > 1 ? 's' : '' }}
+          </span>
+        } @else {
+          <span class="contact-count-text">
+            {{ contactCount() }} contact{{ contactCount() > 1 ? 's' : '' }}
+          </span>
+        }
+      </div>
+      
+      <!-- Action Buttons (Desktop) -->
+      <div class="action-buttons">
+        <button class="btn btn-primary" (click)="onNewContact()">
+          <span class="btn-icon">➕</span>
+          <span class="btn-text">New Contact</span>
+        </button>
+        <button 
+          class="btn btn-secondary" 
+          (click)="onAddRandomContacts()" 
+          [disabled]="!isOnline() || isAddingRandom()"
+        >
+          <span class="btn-icon">🎲</span>
+          <span class="btn-text">
+            @if (isAddingRandom()) {
+              Adding...
+            } @else {
+              Add Random
+            }
+          </span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Action Buttons (Mobile) - Two Rows -->
+    <div class="action-bar-mobile">
+      <div class="mobile-button-row">
+        <button class="btn btn-primary" (click)="onNewContact()">
+          <span class="btn-icon">➕</span>
+          <span class="btn-text">New Contact</span>
+        </button>
+      </div>
+      <div class="mobile-button-row">
+        <button 
+          class="btn btn-secondary" 
+          (click)="onAddRandomContacts()" 
+          [disabled]="!isOnline() || isAddingRandom()"
+        >
+          <span class="btn-icon">🎲</span>
+          <span class="btn-text">
+            @if (isAddingRandom()) {
+              Adding...
+            } @else {
+              Add Random
+            }
+          </span>
+        </button>
+      </div>
     </div>
   }
 
-  <!-- Action Bar -->
-  <div class="action-bar">
-    <button class="btn btn-primary" (click)="onNewContact()">
-      <span class="btn-icon">➕</span>
-      New Contact
-    </button>
-    <button 
-      class="btn btn-secondary" 
-      (click)="onAddRandomContacts()" 
-      [disabled]="!isOnline() || isAddingRandom()"
-    >
-      <span class="btn-icon">🎲</span>
-      @if (isAddingRandom()) {
-        Adding...
-      } @else {
-        Add Random
-      }
-    </button>
-  </div>
+  <!-- Action Bar (when no contacts) -->
+  @if (!hasContacts()) {
+    <div class="action-bar">
+      <button class="btn btn-primary" (click)="onNewContact()">
+        <span class="btn-icon">➕</span>
+        <span class="btn-text">New Contact</span>
+      </button>
+      <button 
+        class="btn btn-secondary" 
+        (click)="onAddRandomContacts()" 
+        [disabled]="!isOnline() || isAddingRandom()"
+      >
+        <span class="btn-icon">🎲</span>
+        <span class="btn-text">
+          @if (isAddingRandom()) {
+            Adding...
+          } @else {
+            Add Random
+          }
+        </span>
+      </button>
+    </div>
+  }
 
   <!-- Error Display -->
   @if (error()) {
@@ -168,11 +220,6 @@
                 </div>
               }
             </div>
-          </div>
-
-          <!-- Arrow Indicator -->
-          <div class="contact-arrow">
-            <span class="arrow-icon">→</span>
           </div>
         </div>
       }
