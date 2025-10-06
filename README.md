@@ -1,14 +1,14 @@
 # 📱 Contact Management App
 
-A modern, offline-first contact management application built with Angular 20+ that provides seamless functionality both online and offline for mobile and desktop devices.
+A modern, offline-first contact management application built with Angular 20 that provides seamless functionality both online and offline for mobile and desktop devices.
 
 ## 🌟 Overview
 
-This Progressive Web Application (PWA) was developed to meet AllCloud's requirements for a contact management system that works reliably in areas with unstable or no network connectivity. The app features a mobile-optimized UI with full CRUD operations that sync automatically when connectivity is restored.
+This Progressive Web Application (PWA) was developed for a contact management system that works reliably in areas with unstable or no network connectivity. The app features a mobile-optimized UI with full CRUD operations that sync automatically when connectivity is restored.
 
 ## ✨ Key Features
 
-### 📋 Contact List (Index Page)
+### 📋 Contact List
 - **Contact Grid Display**: Clean, responsive grid showing contact cards with essential information
 - **Contact Information**: Name, email, phone, location, age, and profile pictures
 - **Search Functionality**: Real-time search across names, emails, and phone numbers
@@ -28,13 +28,8 @@ This Progressive Web Application (PWA) was developed to meet AllCloud's requirem
   - Address: Street, city, state, country, postal code
   - Media: Profile picture support
   - Metadata: Registration date (auto-generated)
-- **Form Validation**:
-  - Email format validation
-  - Phone number pattern validation
-  - Required field validation
-- **Actions**: Edit, Delete, Toggle Favorite, Cancel changes
 
-### 🔄 Offline-First Architecture
+### 🔄 Offline Architecture
 - **Local Storage**: All data persists locally using browser localStorage
 - **Pending Operations Queue**: Changes made offline are queued for synchronization
 - **Automatic Sync**: When connectivity returns, all pending changes sync automatically
@@ -168,16 +163,3 @@ npm run build
 ```bash
 npm test
 ```
-
-## 🤝 Contributing
-
-This project demonstrates modern Angular development practices including:
-- Standalone components architecture
-- Signal-based state management  
-- Offline-first design patterns
-- Mobile-responsive UI design
-- Progressive Web App implementation
-
-## 📄 License
-
-This project is part of a technical assessment for AllCloud and demonstrates client-side development skills with Angular framework supporting mobile UI and offline operations.

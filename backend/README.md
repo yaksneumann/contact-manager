@@ -49,34 +49,6 @@ PORT=3000  # Default port (configurable via environment)
 
 ## 🗄️ Database Schema
 
-### Contacts Table
-```sql
-CREATE TABLE contacts (
-  id TEXT PRIMARY KEY,
-  name_first TEXT,
-  name_last TEXT,
-  email TEXT UNIQUE,
-  phone TEXT,
-  cell TEXT,
-  street_number INTEGER,
-  street_name TEXT,
-  city TEXT,
-  state TEXT,
-  country TEXT,
-  postcode TEXT,
-  picture_large TEXT,
-  picture_medium TEXT,
-  picture_thumbnail TEXT,
-  dob_date TEXT,
-  dob_age INTEGER,
-  registered_date TEXT,
-  registered_age INTEGER,
-  is_favorite INTEGER DEFAULT 0,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-)
-```
-
 ## 🔌 API Endpoints
 
 ### Contact Management
@@ -231,7 +203,3 @@ This backend is designed to work seamlessly with the Angular frontend:
 - **Error Handling**: Provides meaningful HTTP status codes
 - **Offline Support**: RESTful design supports frontend caching strategies
 - **Real-time Data**: Fresh data on each request supports live updates
-
-## 📝 License
-
-Part of the Contact Management application technical assessment.
