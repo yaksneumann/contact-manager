@@ -1,59 +1,183 @@
-# ContactManagement
+# 📱 Contact Management App
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.1.5.
+A modern, offline-first contact management application built with Angular 20+ that provides seamless functionality both online and offline for mobile and desktop devices.
 
-## Development server
+## 🌟 Overview
 
-To start a local development server, run:
+This Progressive Web Application (PWA) was developed to meet AllCloud's requirements for a contact management system that works reliably in areas with unstable or no network connectivity. The app features a mobile-optimized UI with full CRUD operations that sync automatically when connectivity is restored.
 
-```bash
-ng serve
+## ✨ Key Features
+
+### 📋 Contact List (Index Page)
+- **Contact Grid Display**: Clean, responsive grid showing contact cards with essential information
+- **Contact Information**: Name, email, phone, location, age, and profile pictures
+- **Search Functionality**: Real-time search across names, emails, and phone numbers
+- **Quick Actions**: 
+  - ➕ Create new contact
+  - 🎲 Add 10 random contacts (using [RandomUser.me](https://randomuser.me/) API)
+- **Favorite System**: Star/unstar contacts with visual indicators
+- **Offline Indicators**: Visual cues showing sync status and offline state
+
+### 📝 Contact Detail Page
+- **Dual Mode Interface**: 
+  - **View Mode**: Clean presentation of contact information
+  - **Edit Mode**: Comprehensive form for contact modification
+- **Complete Contact Fields**:
+  - Personal: First name, last name, age
+  - Contact: Email, phone, cell phone
+  - Address: Street, city, state, country, postal code
+  - Media: Profile picture support
+  - Metadata: Registration date (auto-generated)
+- **Form Validation**:
+  - Email format validation
+  - Phone number pattern validation
+  - Required field validation
+- **Actions**: Edit, Delete, Toggle Favorite, Cancel changes
+
+### 🔄 Offline-First Architecture
+- **Local Storage**: All data persists locally using browser localStorage
+- **Pending Operations Queue**: Changes made offline are queued for synchronization
+- **Automatic Sync**: When connectivity returns, all pending changes sync automatically
+- **Conflict Resolution**: Smart handling of data conflicts during sync
+- **Toast Notifications**: User-friendly feedback for online/offline state changes
+
+## 🛠️ Technical Stack
+
+### Frontend
+- **Framework**: Angular 20+ with standalone components
+- **State Management**: Angular Signals for reactive state
+- **HTTP Client**: RxJS with async/await pattern
+- **Styling**: Pure CSS with mobile-first responsive design
+- **PWA**: Service Worker integration for offline functionality
+
+### Backend
+- **Runtime**: Node.js with Express
+- **Database**: SQLite for lightweight, file-based storage
+- **API**: RESTful endpoints for CRUD operations
+- **External API**: RandomUser.me integration for sample data
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn package manager
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd contact-management
+   ```
+
+2. **Install frontend dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Install backend dependencies**
+   ```bash
+   cd backend
+   npm install
+   ```
+
+### Running the Application
+
+1. **Start the backend server**
+   ```bash
+   cd backend
+   npm start
+   ```
+   Backend will run on `http://localhost:3000`
+
+2. **Start the frontend development server**
+   ```bash
+   ng serve
+   ```
+   Frontend will run on `http://localhost:4200`
+
+3. **Access the application**
+   Open your browser and navigate to `http://localhost:4200`
+
+## 📱 Mobile & Offline Testing
+
+### Testing Offline Functionality
+1. Open the app in your browser
+2. Open DevTools → Network tab
+3. Set throttling to "Offline"
+4. Try creating, editing, or deleting contacts
+5. Set back to "Online" to see automatic synchronization
+
+### Mobile Testing
+- Use browser DevTools device emulation
+- Test on actual mobile devices
+- Responsive design works on all screen sizes
+
+## 🏗️ Project Structure
+
+```
+contact-management/
+├── src/
+│   ├── app/
+│   │   ├── core/
+│   │   │   ├── models/          # Contact interfaces
+│   │   │   └── services/        # Contact & sync services
+│   │   ├── features/
+│   │   │   ├── contact-list/    # List component
+│   │   │   └── contact-detail/  # Detail component
+│   │   └── shared/
+│   │       ├── components/      # Header component
+│   │       └── toast/          # Notification system
+│   └── styles.css              # Global styles
+├── backend/
+│   ├── server.js               # Express server
+│   ├── contacts.db            # SQLite database
+│   └── package.json           # Backend dependencies
+└── public/
+    ├── manifest.webmanifest   # PWA manifest
+    └── icons/                 # App icons
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## 🎯 Features Demonstration
 
-## Code scaffolding
+### Contact Management
+- ✅ Create new contacts with comprehensive form validation
+- ✅ Edit existing contacts with pre-populated data
+- ✅ Delete contacts with confirmation dialog
+- ✅ Toggle favorite status with instant visual feedback
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Data Persistence
+- ✅ Automatic local storage of all contact data
+- ✅ Seamless offline operation with pending sync queue
+- ✅ Smart conflict resolution when coming back online
 
+### User Experience
+- ✅ Toast notifications for all user actions
+- ✅ Loading states and error handling
+- ✅ Responsive design for mobile and desktop
+- ✅ Progressive Web App capabilities
+
+## 🔧 Build & Deployment
+
+### Production Build
 ```bash
-ng generate component component-name
+npm run build
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+### Testing
 ```bash
-ng generate --help
+npm test
 ```
 
-## Building
+## 🤝 Contributing
 
-To build the project run:
+This project demonstrates modern Angular development practices including:
+- Standalone components architecture
+- Signal-based state management  
+- Offline-first design patterns
+- Mobile-responsive UI design
+- Progressive Web App implementation
 
-```bash
-ng build
-```
+## 📄 License
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+This project is part of a technical assessment for AllCloud and demonstrates client-side development skills with Angular framework supporting mobile UI and offline operations.

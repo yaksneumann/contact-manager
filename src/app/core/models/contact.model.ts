@@ -30,10 +30,9 @@ export interface Contact {
     date: string;
     age: number;
   };
-  // Additional fields for local management
   isOnline?: boolean;
-  lastModified?: string;
   pendingSync?: boolean;
+  isFavorite?: boolean;
 }
 
 export interface ContactFormData {
@@ -50,22 +49,4 @@ export interface ContactFormData {
   postcode: string;
   age: number;
   picture?: string;
-}
-
-export interface RandomUserResponse {
-  results: Contact[];
-  info: {
-    seed: string;
-    results: number;
-    page: number;
-    version: string;
-  };
-}
-
-export interface SyncOperation {
-  id: string;
-  operation: 'CREATE' | 'UPDATE' | 'DELETE';
-  data: Contact;
-  timestamp: string;
-  retryCount: number;
 }

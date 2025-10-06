@@ -1,8 +1,8 @@
-/* Toast Container - Mobile-First Design */
 .toast-container {
   position: fixed;
-  top: 1rem;
-  right: 1rem;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -11,7 +11,6 @@
   pointer-events: none;
 }
 
-/* Individual Toast */
 .toast {
   display: flex;
   align-items: center;
@@ -40,7 +39,6 @@
   }
 }
 
-/* Toast Content */
 .toast-content {
   display: flex;
   align-items: center;
@@ -60,7 +58,6 @@
   flex: 1;
 }
 
-/* Close Button */
 .toast-close {
   background: none;
   border: none;
@@ -87,11 +84,10 @@
   transform: scale(1.1);
 }
 
-/* Toast Types */
 .toast-success {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  border-left: 4px solid #047857;
+  background: linear-gradient(135deg, #4ade80 0%, #5abe7f 100%);
+  color: #065f46;
+  border-left: 4px solid #42c098;
 }
 
 .toast-error {
@@ -112,12 +108,12 @@
   border-left: 4px solid #0891b2;
 }
 
-/* Mobile Adjustments */
 @media (max-width: 480px) {
   .toast-container {
-    top: 0.5rem;
-    right: 0.5rem;
-    left: 0.5rem;
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    transform: none;
     max-width: none;
   }
 
@@ -138,11 +134,9 @@
   }
 }
 
-/* Tablet and Desktop */
 @media (min-width: 768px) {
   .toast-container {
-    top: 1.5rem;
-    right: 1.5rem;
+    top: 2rem;
   }
 
   .toast {
@@ -153,23 +147,6 @@
   }
 }
 
-/* Accessibility */
-@media (prefers-reduced-motion: reduce) {
-  .toast {
-    animation: none;
-  }
-  
-  .toast-close {
-    transition: none;
-    transform: none;
-  }
-  
-  .toast-close:hover {
-    transform: none;
-  }
-}
-
-/* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .toast {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -180,7 +157,6 @@
   }
 }
 
-/* Exit Animation */
 .toast.removing {
   animation: slideOut 0.2s ease-in;
 }

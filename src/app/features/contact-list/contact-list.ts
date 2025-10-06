@@ -1,6 +1,5 @@
 import { Component, inject, OnInit, signal, effect, computed } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ContactService } from '../../core/services/contact.service';
 import { Contact } from '../../core/models/contact.model';
@@ -9,143 +8,132 @@ import { HeaderComponent } from '../../shared/components/header/header.component
 
 @Component({
   selector: 'app-contact-list',
-  imports: [CommonModule, FormsModule, HeaderComponent],
+  imports: [FormsModule, HeaderComponent],
   templateUrl: './contact-list.html',
   styleUrl: './contact-list.css'
 })
 export class ContactListComponent implements OnInit {
-  private contactService = inject(ContactService);
-  private router = inject(Router);
-  private toastService = inject(ToastService);
-  private wasOffline = false;
+  private readonly contactService = inject(ContactService);
+  private readonly router = inject(Router);
+  private readonly toastService = inject(ToastService);
   
-  // Signals from service
-  readonly contacts = this.contactService.contacts;
   readonly loading = this.contactService.loading;
   readonly error = this.contactService.error;
   readonly isOnline = this.contactService.isOnline;
-  readonly contactCount = this.contactService.contactCount;
-  readonly hasContacts = this.contactService.hasContacts;
+  readonly contacts = this.contactService.contacts;
+
+  private displayedErrors = new Set<string>();
+  private failedImages = new Set<string>();
   
-  // Component-specific signals
-  readonly isAddingRandom = signal<boolean>(false);
-  readonly searchQuery = signal<string>('');
-  
-  // Computed filtered contacts
+  readonly isAddingRandomContacts = signal<boolean>(false);
+  readonly searchInput = signal<string>('');
+
   readonly filteredContacts = computed(() => {
-    const query = this.searchQuery().toLowerCase().trim();
+    const query = this.searchInput().toLowerCase().trim();
     const allContacts = this.contacts();
-    
     if (!query) {
       return allContacts;
     }
-    
     const filtered = allContacts.filter(contact => {
       const fullName = `${contact.name.first} ${contact.name.last}`.toLowerCase();
       const email = contact.email?.toLowerCase() || '';
       const phone = contact.phone?.toLowerCase() || '';
-      
-      return fullName.includes(query) || 
-             email.includes(query) || 
-             phone.includes(query);
+
+      return fullName.includes(query) || email.includes(query) || phone.includes(query);
     });
-    
     return filtered;
   });
-  
-  // Computed filtered contact count
-  readonly filteredContactCount = computed(() => this.filteredContacts().length);
-  readonly hasFilteredContacts = computed(() => this.filteredContacts().length > 0);
-  
+
   constructor() {
-    // Effect to handle error display
     effect(() => {
       const error = this.error();
-    });
-    
-    // Effect to track online/offline status
-    effect(() => {
-      const isOnline = this.isOnline();
-      
-      if (!isOnline) {
-        this.wasOffline = true;
-      } else if (this.wasOffline && isOnline) {
-        this.wasOffline = false;
+      if (error && !this.displayedErrors.has(error)) {
+        this.displayedErrors.add(error);
+        this.toastService.error(error, 3000);
+        queueMicrotask(() => {
+          this.contactService.clearError();
+          this.displayedErrors.delete(error);
+        });
       }
     });
   }
   
   ngOnInit(): void {
-    // Only load contacts if we don't have any yet
-    // This prevents unnecessary reloading when navigating back from detail page
-    if (this.contacts().length === 0) {
-      this.loadContacts();
-    }
-  }
-  
-  async loadContacts(): Promise<void> {
-    await this.contactService.loadContacts();
+    this.contactService.clearError();
+    this.contactService.loadContacts();
   }
   
   onContactClick(contact: Contact): void {
-    if (contact.id) {
       this.router.navigate(['/contact', contact.id]);
-    }
   }
-  
+
   onNewContact(): void {
     this.router.navigate(['/contact', 'new']);
   }
-  
+
   async onAddRandomContacts(): Promise<void> {
     if (!this.isOnline()) {
-      alert('Cannot add random contacts while offline. Please connect to the internet.');
+      this.toastService.error('Cannot add random contacts while offline. Please connect to the internet.');
       return;
     }
-    
-    this.isAddingRandom.set(true);
-    
+
+    this.isAddingRandomContacts.set(true);
     try {
       const addedContacts = await this.contactService.addRandomContacts(10);
       if (addedContacts.length > 0) {
-        console.log(`Added ${addedContacts.length} random contacts`);
+        this.toastService.success(`Successfully added ${addedContacts.length} random contacts!`);
+      } else {
+        this.toastService.warning('No random contacts were added. Please try again.');
       }
     } catch (error) {
-      console.error('Failed to add random contacts:', error);
+      this.toastService.error('Failed to add random contacts. Please try again.');
     } finally {
-      this.isAddingRandom.set(false);
+      this.isAddingRandomContacts.set(false);
+    }
+  }
+
+  async onToggleFavorite(contact: Contact, event: Event): Promise<void> {
+    event.stopPropagation();
+    if (!contact.id) {
+      this.toastService.error('Cannot toggle favorite: Contact ID is missing');
+      return;
+    }
+    try {
+      const updatedContact = await this.contactService.toggleFavorite(contact.id);
+      if (updatedContact) {
+        const action = updatedContact.isFavorite ? 'added to' : 'removed from';
+        this.toastService.success(`Contact ${action} favorites`);
+      }
+    } catch (error) {
+      this.toastService.error('Failed to update favorite status');
     }
   }
   
-  clearError(): void {
-    this.contactService.clearError();
-  }
-  
   onSearchChange(query: string): void {
-    this.searchQuery.set(query);
+    this.searchInput.set(query);
   }
   
   clearSearch(): void {
-    this.searchQuery.set('');
+    this.searchInput.set('');
   }
   
   getContactFullName(contact: Contact): string {
     return `${contact.name.first} ${contact.name.last}`.trim();
   }
   
-  getContactAddress(contact: Contact): string {
-    const location = contact.location;
-    return `${location.city}, ${location.state}`.trim().replace(/,$/, '');
-  }
-  
   getContactImageSrc(contact: Contact): string | null {
     if (!contact.id) return null;
     
-    // Try thumbnail first, then medium, then large as fallback
-    return contact.picture?.thumbnail || 
-           contact.picture?.medium || 
-           contact.picture?.large || 
-           null;
+    if (this.failedImages.has(contact.id)) {
+      return null;
+    }
+    return contact.picture?.thumbnail || contact.picture?.medium || contact.picture?.large || null;
+  }
+  
+  onImageError(contact: Contact): void {
+    if (contact.id) {
+      this.failedImages.add(contact.id);
+    }
   }
   
   trackByContactId(index: number, contact: Contact): string | number {

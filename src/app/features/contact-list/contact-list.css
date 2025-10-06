@@ -4,18 +4,35 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+.offline-banner {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 1rem;
+  margin-top: 1rem;
+  border-radius: 0.5rem;
+  border-left: 4px solid #f59e0b;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.offline-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.offline-text {
+  flex: 1;
+}
+
 .action-bar {
   display: flex;
   gap: 0.75rem;
   padding: 0 1rem 1rem 1rem;
   flex-wrap: wrap;
-}
-
-/* Mobile-first: Default mobile styles */
-.action-buttons {
-  display: none !important;
-  gap: 0.5rem;
-  flex-shrink: 0;
 }
 
 .action-bar-mobile {
@@ -351,6 +368,11 @@
   border: 3px solid #e2e8f0;
 }
 
+.avatar-placeholder.offline-avatar {
+  background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+  border-color: #cbd5e1;
+}
+
 .sync-indicator {
   position: absolute;
   bottom: -2px;
@@ -365,6 +387,39 @@
   justify-content: center;
   font-size: 0.625rem;
   border: 2px solid white;
+}
+
+.favorite-indicator {
+  position: absolute;
+  top: 0px;
+  right: -12px;
+  background: #f59e0b;
+  color: white;
+  border-radius: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.favorite-indicator:hover {
+  transform: scale(1.1);
+}
+
+.favorite-indicator.unfavorite {
+  background: #e5e7eb;
+  color: #6b7280;
+}
+
+.favorite-indicator.unfavorite:hover {
+  background: #f59e0b;
+  color: white;
 }
 
 .contact-info {
@@ -409,22 +464,11 @@
   white-space: nowrap;
 }
 
-.contact-arrow {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  color: #cbd5e1;
-  transition: all 0.2s ease;
-}
-
-.contact-card:hover .contact-arrow {
-  color: #4f46e5;
-  transform: translateX(0.25rem);
-}
-
-.arrow-icon {
-  font-size: 1.25rem;
-  font-weight: bold;
+/* Hide secondary button on mobile */
+@media (max-width: 767px) {
+  .action-buttons {
+    display: none !important;
+  }
 }
 
 @media (min-width: 768px) {
@@ -481,12 +525,6 @@
   .contact-info {
     text-align: center;
   }
-
-  .contact-arrow {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-  }
 }
 
 @media (min-width: 1024px) {
@@ -534,6 +572,12 @@
   .contact-list-container {
     background-color: #0f172a;
     color: #e2e8f0;
+  }
+
+  .offline-banner {
+    background: #451a03;
+    color: #fbbf24;
+    border-left-color: #f59e0b;
   }
 
   .search-input {
@@ -585,7 +629,75 @@
     border-color: #334155;
   }
 
+  .avatar-placeholder.offline-avatar {
+    background: linear-gradient(135deg, #475569 0%, #334155 100%);
+    border-color: #1e293b;
+  }
+
   .avatar-image {
     border-color: #334155;
+  }
+
+  .fab {
+    background: linear-gradient(135deg, #3B99BD 0%, #7CB6C7 100%);
+    box-shadow: 0 8px 24px rgba(59, 153, 189, 0.4);
+  }
+
+  .fab:hover {
+    background: linear-gradient(135deg, #2d7a9a 0%, #6ba3b5 100%);
+    box-shadow: 0 12px 32px rgba(59, 153, 189, 0.5);
+  }
+
+  .favorite-indicator {
+    background: #f59e0b;
+    border-color: #1e293b;
+  }
+
+  .sync-indicator {
+    border-color: #1e293b;
+  }
+}
+
+.fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  background: linear-gradient(135deg, #3B99BD 0%, #7CB6C7 100%);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(59, 153, 189, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 50;
+  backdrop-filter: blur(10px);
+}
+
+.fab:hover {
+  background: linear-gradient(135deg, #2d7a9a 0%, #6ba3b5 100%);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 12px 32px rgba(59, 153, 189, 0.4);
+}
+
+.fab:active {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 6px 16px rgba(59, 153, 189, 0.3);
+}
+
+.fab-icon {
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+@media (min-width: 1025px) {
+  .fab {
+    display: none;
   }
 }

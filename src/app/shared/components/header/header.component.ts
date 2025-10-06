@@ -1,11 +1,10 @@
 import { Component, input, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })

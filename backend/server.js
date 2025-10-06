@@ -8,15 +8,12 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Database setup
 const dbPath = path.join(__dirname, 'contacts.db');
 const db = new sqlite3.Database(dbPath);
 
-// Initialize database
 db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS contacts (
@@ -39,13 +36,24 @@ db.serialize(() => {
       dob_age INTEGER,
       registered_date TEXT,
       registered_age INTEGER,
+      is_favorite INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+  
+  // Migration: Add is_favorite column to existing tables
+  db.run(`
+    ALTER TABLE contacts ADD COLUMN is_favorite INTEGER DEFAULT 0
+  `, (err) => {
+    if (err && !err.message.includes('duplicate column name')) {
+      console.error('Migration error:', err.message);
+    } else if (!err) {
+      console.log('Added is_favorite column to contacts table');
+    }
+  });
 });
 
-// Helper function to transform contact data
 function transformContactFromDB(row) {
   return {
     id: row.id,
@@ -78,7 +86,8 @@ function transformContactFromDB(row) {
     registered: {
       date: row.registered_date,
       age: row.registered_age
-    }
+    },
+    isFavorite: Boolean(row.is_favorite)
   };
 }
 
@@ -102,11 +111,17 @@ function transformContactForDB(contact) {
     dob_date: contact.dob?.date || '',
     dob_age: contact.dob?.age || 0,
     registered_date: contact.registered?.date || new Date().toISOString(),
-    registered_age: contact.registered?.age || 0
+    registered_age: contact.registered?.age || 0,
+    is_favorite: contact.isFavorite ? 1 : 0
   };
 }
 
-// Routes
+// Helper function to sanitize phone numbers (remove letters and invalid characters)
+function sanitizePhoneNumber(phone) {
+  if (!phone) return '';
+  // Keep only: digits, spaces, +, -, (, )
+  return phone.replace(/[^\d\s\+\-\(\)]/g, '').trim();
+}
 
 // Get all contacts
 app.get('/api/contacts', (req, res) => {
@@ -151,8 +166,8 @@ app.post('/api/contacts', (req, res) => {
       id, name_first, name_last, email, phone, cell,
       street_number, street_name, city, state, country, postcode,
       picture_large, picture_medium, picture_thumbnail,
-      dob_date, dob_age, registered_date, registered_age
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      dob_date, dob_age, registered_date, registered_age, is_favorite
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
   
   const params = [
@@ -161,12 +176,16 @@ app.post('/api/contacts', (req, res) => {
     contactData.street_name, contactData.city, contactData.state, contactData.country,
     contactData.postcode, contactData.picture_large, contactData.picture_medium,
     contactData.picture_thumbnail, contactData.dob_date, contactData.dob_age,
-    contactData.registered_date, contactData.registered_age
+    contactData.registered_date, contactData.registered_age, contactData.is_favorite
   ];
   
   db.run(sql, params, function(err) {
     if (err) {
-      res.status(500).json({ error: err.message });
+      if (err.code === 'SQLITE_CONSTRAINT' && err.message.includes('UNIQUE constraint failed: contacts.email')) {
+        res.status(409).json({ error: 'Email already exists. Please use a different email address.' });
+      } else {
+        res.status(500).json({ error: err.message });
+      }
       return;
     }
     
@@ -186,7 +205,7 @@ app.put('/api/contacts/:id', (req, res) => {
       name_first = ?, name_last = ?, email = ?, phone = ?, cell = ?,
       street_number = ?, street_name = ?, city = ?, state = ?, country = ?, postcode = ?,
       picture_large = ?, picture_medium = ?, picture_thumbnail = ?,
-      dob_date = ?, dob_age = ?, updated_at = CURRENT_TIMESTAMP
+      dob_date = ?, dob_age = ?, is_favorite = ?, updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
   `;
   
@@ -196,12 +215,16 @@ app.put('/api/contacts/:id', (req, res) => {
     contactData.street_name, contactData.city, contactData.state, contactData.country,
     contactData.postcode, contactData.picture_large, contactData.picture_medium,
     contactData.picture_thumbnail, contactData.dob_date, contactData.dob_age,
-    req.params.id
+    contactData.is_favorite, req.params.id
   ];
   
   db.run(sql, params, function(err) {
     if (err) {
-      res.status(500).json({ error: err.message });
+      if (err.code === 'SQLITE_CONSTRAINT' && err.message.includes('UNIQUE constraint failed: contacts.email')) {
+        res.status(409).json({ error: 'Email already exists. Please use a different email address.' });
+      } else {
+        res.status(500).json({ error: err.message });
+      }
       return;
     }
     
@@ -246,18 +269,23 @@ app.post('/api/contacts/random', async (req, res) => {
     const insertedContacts = [];
     
     for (const user of users) {
-      const contactData = transformContactForDB({
+      // Sanitize phone numbers before storing
+      const sanitizedUser = {
         ...user,
-        id: uuidv4()
-      });
+        id: uuidv4(),
+        phone: sanitizePhoneNumber(user.phone),
+        cell: sanitizePhoneNumber(user.cell)
+      };
+      
+      const contactData = transformContactForDB(sanitizedUser);
       
       const sql = `
         INSERT INTO contacts (
           id, name_first, name_last, email, phone, cell,
           street_number, street_name, city, state, country, postcode,
           picture_large, picture_medium, picture_thumbnail,
-          dob_date, dob_age, registered_date, registered_age
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          dob_date, dob_age, registered_date, registered_age, is_favorite
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
       
       const params = [
@@ -266,7 +294,7 @@ app.post('/api/contacts/random', async (req, res) => {
         contactData.street_name, contactData.city, contactData.state, contactData.country,
         contactData.postcode, contactData.picture_large, contactData.picture_medium,
         contactData.picture_thumbnail, contactData.dob_date, contactData.dob_age,
-        contactData.registered_date, contactData.registered_age
+        contactData.registered_date, contactData.registered_age, contactData.is_favorite
       ];
       
       await new Promise((resolve, reject) => {

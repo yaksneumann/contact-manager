@@ -1,228 +1,184 @@
 <div class="contact-list-container">
-  <!-- Shared Header -->
-  <app-header 
-    title="Contacts">
-  </app-header>
+  <app-header title="Contacts" />
 
-  <!-- Search and Action Bar Combined -->
-  @if (hasContacts()) {
-    <div class="search-action-combined">
-      <div class="search-input-wrapper">
-        <span class="search-icon">🔍</span>
-        <input 
-          type="text" 
-          class="search-input"
-          placeholder="Search contacts"
-          [value]="searchQuery()"
-          (input)="onSearchChange($any($event.target).value)"
-        >
-        @if (searchQuery()) {
-          <button class="search-clear" (click)="clearSearch()" title="Clear search">
-            ✕
-          </button>
-        }
-      </div>
-      
-      <!-- Contact Count -->
-      <div class="contact-count-section">
-        @if (searchQuery()) {
-          <span class="contact-count-text">
-            {{ filteredContactCount() }} of {{ contactCount() }} contact{{ contactCount() > 1 ? 's' : '' }}
-          </span>
-        } @else {
-          <span class="contact-count-text">
-            {{ contactCount() }} contact{{ contactCount() > 1 ? 's' : '' }}
-          </span>
-        }
-      </div>
-      
-      <!-- Action Buttons (Desktop) -->
-      <div class="action-buttons">
-        <button class="btn btn-primary" (click)="onNewContact()">
-          <span class="btn-icon">➕</span>
-          <span class="btn-text">New Contact</span>
-        </button>
-        <button 
-          class="btn btn-secondary" 
-          (click)="onAddRandomContacts()" 
-          [disabled]="!isOnline() || isAddingRandom()"
-        >
-          <span class="btn-icon">🎲</span>
-          <span class="btn-text">
-            @if (isAddingRandom()) {
-              Adding...
-            } @else {
-              Add Random
-            }
-          </span>
-        </button>
-      </div>
-    </div>
-    
-    <!-- Action Buttons (Mobile) - Two Rows -->
-    <div class="action-bar-mobile">
-      <div class="mobile-button-row">
-        <button class="btn btn-primary" (click)="onNewContact()">
-          <span class="btn-icon">➕</span>
-          <span class="btn-text">New Contact</span>
-        </button>
-      </div>
-      <div class="mobile-button-row">
-        <button 
-          class="btn btn-secondary" 
-          (click)="onAddRandomContacts()" 
-          [disabled]="!isOnline() || isAddingRandom()"
-        >
-          <span class="btn-icon">🎲</span>
-          <span class="btn-text">
-            @if (isAddingRandom()) {
-              Adding...
-            } @else {
-              Add Random
-            }
-          </span>
-        </button>
-      </div>
-    </div>
+  @if (!isOnline()) {
+  <div class="offline-banner">
+    <span class="offline-icon">📴</span>
+    <span class="offline-text">You're offline. Showing cached contacts.</span>
+  </div>
   }
 
-  <!-- Action Bar (when no contacts) -->
-  @if (!hasContacts()) {
-    <div class="action-bar">
+  <div class="search-action-combined">
+    @if (contacts().length > 0) {
+    <div class="search-input-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="search-input" placeholder="Search contacts" [value]="searchInput()"
+        (input)="onSearchChange($any($event.target).value)">
+      @if (searchInput()) {
+      <button class="search-clear" (click)="clearSearch()" title="Clear search">
+        ✕
+      </button>
+      }
+    </div>
+
+    <div class="contact-count-section">
+      @if (searchInput()) {
+      <span class="contact-count-text">
+        {{ filteredContacts().length }} of {{ contacts().length }} contact{{ contacts().length > 1 ? 's' : '' }}
+      </span>
+      } @else {
+      <span class="contact-count-text">
+        {{ contacts().length }} contact{{ contacts().length > 1 ? 's' : '' }}
+      </span>
+      }
+    </div>
+    }
+
+    <div class="action-buttons">
       <button class="btn btn-primary" (click)="onNewContact()">
         <span class="btn-icon">➕</span>
-        <span class="btn-text">New Contact</span>
+        <span class="btn-text">Add New Contact</span>
       </button>
-      <button 
-        class="btn btn-secondary" 
-        (click)="onAddRandomContacts()" 
-        [disabled]="!isOnline() || isAddingRandom()"
-      >
+      <button class="btn btn-secondary" (click)="onAddRandomContacts()"
+        [disabled]="!isOnline() || isAddingRandomContacts()">
         <span class="btn-icon">🎲</span>
         <span class="btn-text">
-          @if (isAddingRandom()) {
-            Adding...
+          @if (isAddingRandomContacts()) {
+          Adding...
           } @else {
-            Add Random
+          Add Random Contacts
           }
         </span>
       </button>
     </div>
-  }
+  </div>
 
-  <!-- Error Display -->
-  @if (error()) {
-    <div class="error-banner">
-      <span class="error-message">{{ error() }}</span>
-      <button class="error-close" (click)="clearError()">✕</button>
+  <div class="action-bar-mobile">
+    <div class="mobile-button-row">
+      <button class="btn btn-primary" (click)="onNewContact()">
+        <span class="btn-icon">➕</span>
+        <span class="btn-text">Add New Contact</span>
+      </button>
     </div>
-  }
+    <div class="mobile-button-row">
+      <button class="btn btn-secondary" (click)="onAddRandomContacts()" [disabled]="isAddingRandomContacts()">
+        <span class="btn-icon">🎲</span>
+        <span class="btn-text">
+          @if (isAddingRandomContacts()) {
+          Adding...
+          } @else {
+          Add Random Contacts
+          }
+        </span>
+      </button>
+    </div>
+  </div>
 
-  <!-- Loading State -->
   @if (loading()) {
-    <div class="loading-container">
-      <div class="loading-spinner"></div>
-      <span class="loading-text">Loading contacts...</span>
-    </div>
+  <div class="loading-container">
+    <div class="loading-spinner"></div>
+    <span class="loading-text">Loading contacts...</span>
+  </div>
   }
 
-  <!-- Empty State -->
-  @if (!loading() && !hasContacts()) {
-    <div class="empty-state">
-      <div class="empty-icon">👥</div>
-      <h2 class="empty-title">No Contacts Yet</h2>
-      <p class="empty-message">
-        Get started by creating your first contact or adding some random sample contacts.
-      </p>
-      <div class="empty-actions">
-        <button class="btn btn-primary" (click)="onNewContact()">
-          Create First Contact
-        </button>
-        @if (isOnline()) {
-          <button class="btn btn-outline" (click)="onAddRandomContacts()">
-            Add Sample Contacts
-          </button>
+  @if (!loading() && contacts().length === 0) {
+  <div class="empty-state">
+    <div class="empty-icon">👥</div>
+    @if (isOnline()) {
+    <h2 class="empty-title">No Contacts Yet</h2>
+    <p class="empty-message">
+      Get started by creating your first contact or adding some random sample contacts.
+    </p>
+    } @else {
+    <h2 class="empty-title">No Contacts Available</h2>
+    <p class="empty-message">
+      You're currently offline and no contacts are cached. Connect to the internet to load your contacts.
+    </p>
+    <div class="empty-actions">
+      <button class="btn btn-primary" (click)="onNewContact()">
+        Create Contact (will sync later)
+      </button>
+    </div>
+    }
+  </div>
+  }
+
+  @if (!loading() && contacts().length > 0 && searchInput() && filteredContacts().length === 0) {
+  <div class="empty-state">
+    <div class="empty-icon">🔍</div>
+    <h2 class="empty-title">No Results Found</h2>
+    <p class="empty-message">
+      No contacts match your search for "<strong>{{ searchInput() }}</strong>".
+      <br>Try searching with a different term.
+    </p>
+    <div class="empty-actions">
+      <button class="btn btn-outline" (click)="clearSearch()">
+        Clear Search
+      </button>
+    </div>
+  </div>
+  }
+
+  @if (filteredContacts().length > 0) {
+  <div class="contact-grid">
+    @for (contact of filteredContacts(); track trackByContactId($index, contact)) {
+    <div class="contact-card" [class.pending-sync]="contact.pendingSync" (click)="onContactClick(contact)">
+      <div class="contact-avatar">
+        @if (getContactImageSrc(contact)) {
+        <img [src]="getContactImageSrc(contact)" [alt]="getContactFullName(contact)" class="avatar-image"
+          (error)="onImageError(contact)" loading="lazy">
+        } @else {
+        <div class="avatar-placeholder" [class.offline-avatar]="!isOnline()">
+          {{ getContactFullName(contact).charAt(0).toUpperCase() }}
+        </div>
+        }
+        @if (contact.isFavorite) {
+        <div class="favorite-indicator" title="Click to remove from favorites"
+          (click)="onToggleFavorite(contact, $event)">⭐</div>
+        } @else {
+        <div class="favorite-indicator unfavorite" title="Click to add to favorites"
+          (click)="onToggleFavorite(contact, $event)">☆</div>
+        }
+        @if (contact.pendingSync) {
+        <div class="sync-indicator" title="Pending sync">⏳</div>
         }
       </div>
-    </div>
-  }
 
-  <!-- No Search Results -->
-  @if (!loading() && hasContacts() && searchQuery() && !hasFilteredContacts()) {
-    <div class="empty-state">
-      <div class="empty-icon">🔍</div>
-      <h2 class="empty-title">No Results Found</h2>
-      <p class="empty-message">
-        No contacts match your search for "<strong>{{ searchQuery() }}</strong>".
-        <br>Try searching with a different term.
-      </p>
-      <div class="empty-actions">
-        <button class="btn btn-outline" (click)="clearSearch()">
-          Clear Search
-        </button>
+      <div class="contact-info">
+        <h3 class="contact-name">{{ getContactFullName(contact) }}</h3>
+        <div class="contact-details">
+          @if (contact.email) {
+          <div class="contact-detail">
+            <span class="detail-icon">📧</span>
+            <span class="detail-text">{{ contact.email }}</span>
+          </div>
+          }
+          @if (contact.phone) {
+          <div class="contact-detail">
+            <span class="detail-icon">📱</span>
+            <span class="detail-text">{{ contact.phone }}</span>
+          </div>
+          }
+          @if (contact.location) {
+          <div class="contact-detail">
+            <span class="detail-icon">📍</span>
+            <span class="detail-text">{{ contact.location.city }}, {{ contact.location.state }}</span>
+          </div>
+          }
+          @if (contact.dob && contact.dob.age) {
+          <div class="contact-detail">
+            <span class="detail-icon">🎂</span>
+            <span class="detail-text">{{ contact.dob.age }} years old</span>
+          </div>
+          }
+        </div>
       </div>
     </div>
-  }
-
-  <!-- Contact List -->
-  @if (hasFilteredContacts()) {
-    <div class="contact-grid">
-      @for (contact of filteredContacts(); track trackByContactId($index, contact)) {
-        <div 
-          class="contact-card"
-          [class.pending-sync]="contact.pendingSync"
-          (click)="onContactClick(contact)"
-        >
-          <!-- Avatar -->
-          <div class="contact-avatar">
-            @if (getContactImageSrc(contact)) {
-              <img 
-                [src]="getContactImageSrc(contact)" 
-                [alt]="getContactFullName(contact)"
-                class="avatar-image"
-              >
-            } @else {
-              <div class="avatar-placeholder">
-                {{ getContactFullName(contact).charAt(0).toUpperCase() }}
-              </div>
-            }
-            @if (contact.pendingSync) {
-              <div class="sync-indicator" title="Pending sync">⏳</div>
-            }
-          </div>
-
-          <!-- Contact Info -->
-          <div class="contact-info">
-            <h3 class="contact-name">{{ getContactFullName(contact) }}</h3>
-            <div class="contact-details">
-              @if (contact.email) {
-                <div class="contact-detail">
-                  <span class="detail-icon">📧</span>
-                  <span class="detail-text">{{ contact.email }}</span>
-                </div>
-              }
-              @if (contact.phone) {
-                <div class="contact-detail">
-                  <span class="detail-icon">📱</span>
-                  <span class="detail-text">{{ contact.phone }}</span>
-                </div>
-              }
-              @if (contact.location) {
-                <div class="contact-detail">
-                  <span class="detail-icon">📍</span>
-                  <span class="detail-text">{{ getContactAddress(contact) }}</span>
-                </div>
-              }
-              @if (contact.dob && contact.dob.age) {
-                <div class="contact-detail">
-                  <span class="detail-icon">🎂</span>
-                  <span class="detail-text">{{ contact.dob.age }} years old</span>
-                </div>
-              }
-            </div>
-          </div>
-        </div>
-      }
-    </div>
+    }
+  </div>
   }
 </div>
+
+<button class="fab" (click)="onNewContact()" title="Create new contact" aria-label="Create new contact">
+  <span class="fab-icon">➕</span>
+</button>

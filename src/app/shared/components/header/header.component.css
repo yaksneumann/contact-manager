@@ -58,10 +58,15 @@
 
 .contacts-text {
   font-size: 0.875rem;
+
+  display: none;
 }
 
-/* Responsive styles */
 @media (min-width: 768px) {
+  .contacts-text {
+    display: inline;
+  }
+
   .header-title {
     font-size: 1.75rem;
   }
@@ -87,7 +92,6 @@
   }
 }
 
-/* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .contacts-button {
     background: rgba(255, 255, 255, 0.15);

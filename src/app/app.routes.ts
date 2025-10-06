@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { ContactListComponent } from './features/contact-list/contact-list';
+import { ContactDetailComponent } from './features/contact-detail/contact-detail';
 
 export const routes: Routes = [
   {
@@ -8,13 +10,11 @@ export const routes: Routes = [
   },
   {
     path: 'contacts',
-    loadComponent: () => 
-      import('./features/contact-list/contact-list').then(c => c.ContactListComponent)
+    component: ContactListComponent
   },
   {
     path: 'contact/:id',
-    loadComponent: () => 
-      import('./features/contact-detail/contact-detail').then(c => c.ContactDetailComponent)
+    component: ContactDetailComponent
   },
   {
     path: '**',

@@ -15,7 +15,7 @@ export class ToastService {
   readonly toasts = signal<ToastMessage[]>([]);
   private nextId = 1;
 
-  show(message: string, type: ToastMessage['type'] = 'info', duration = 4000, icon?: string): void {
+  show(message: string, type: ToastMessage['type'] = 'info', duration = 3000, icon?: string): void {
     const toast: ToastMessage = {
       id: `toast-${this.nextId++}`,
       message,
@@ -24,10 +24,8 @@ export class ToastService {
       icon
     };
 
-    // Add toast to the list
     this.toasts.update(toasts => [...toasts, toast]);
 
-    // Auto-dismiss after duration
     if (duration > 0) {
       setTimeout(() => {
         this.dismiss(toast.id);
@@ -43,26 +41,24 @@ export class ToastService {
     this.toasts.set([]);
   }
 
-  // Convenience methods
-  success(message: string, duration = 3000): void {
+  success(message: string, duration = 2000): void {
     this.show(message, 'success', duration, '✅');
   }
 
-  error(message: string, duration = 5000): void {
+  error(message: string, duration = 3500): void {
     this.show(message, 'error', duration, '❌');
   }
 
-  warning(message: string, duration = 4000): void {
+  warning(message: string, duration = 3000): void {
     this.show(message, 'warning', duration, '⚠️');
   }
 
-  info(message: string, duration = 4000): void {
+  info(message: string, duration = 2500): void {
     this.show(message, 'info', duration, 'ℹ️');
   }
 
-  // Network status specific methods
   showOffline(): void {
-    this.warning('You are now offline. Some features may not be available.', 6000);
+    this.warning('You are now offline. Some features may not be available.', 3000);
   }
 
   showOnline(): void {
