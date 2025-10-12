@@ -1,5 +1,10 @@
 {
-  "redirects": [
-    { "source": "/(.*)", "destination": "/index.html", "permanent": true }
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/contact-management/browser",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
