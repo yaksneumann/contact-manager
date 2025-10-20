@@ -61,18 +61,12 @@ This Progressive Web Application (PWA) was developed for a contact management sy
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd contact-management
+   git clone https://github.com/yaksneumann/contact-manager.git
+   cd contact-manager
    ```
 
 2. **Install frontend dependencies**
    ```bash
-   npm install
-   ```
-
-3. **Install backend dependencies**
-   ```bash
-   cd backend
    npm install
    ```
 
@@ -87,7 +81,7 @@ This Progressive Web Application (PWA) was developed for a contact management sy
 
 2. **Start the frontend development server**
    ```bash
-   ng serve
+   ng serve -o
    ```
    Frontend will run on `http://localhost:4200`
 
