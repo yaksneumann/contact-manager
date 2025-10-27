@@ -75,6 +75,7 @@ This Progressive Web Application (PWA) was developed for a contact management sy
 1. **Start the backend server**
    ```bash
    cd backend
+   npm install
    npm start
    ```
    Backend will run on `http://localhost:3000`
